@@ -2,11 +2,15 @@
 
 namespace App\Exceptions;
 
+use App\Traits\ApiResponseTrait;
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Symfony\Component\HttpFoundation\Response;
 
 class Handler extends ExceptionHandler
 {
+    use ApiResponseTrait;
+
     /**
      * A list of the exception types that are not reported.
      *
@@ -28,9 +32,11 @@ class Handler extends ExceptionHandler
 
     /**
      * Report or log an exception.
-     *
-     * @param  \Exception  $exception
-     * @return void
+     * @param Exception $exception
+     * @return mixed|void
+     * @throws Exception
+     * @author: King
+     * @version: 2019/7/23 12:30
      */
     public function report(Exception $exception)
     {
@@ -47,5 +53,21 @@ class Handler extends ExceptionHandler
     public function render($request, Exception $exception)
     {
         return parent::render($request, $exception);
+    }
+
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @param Exception $e
+     * @return \Illuminate\Http\JsonResponse
+     * @author: King
+     * @version: 2019/7/23 12:29
+     */
+    public function prepareJsonResponse($request, Exception $e)
+    {
+        return $this->failedWithMessageAndErrors(
+            $e->getMessage(),
+            $this->convertExceptionToArray($e),
+            $this->isHttpException($e) ? $e->getStatusCode() : Response::HTTP_INTERNAL_SERVER_ERROR
+        );
     }
 }

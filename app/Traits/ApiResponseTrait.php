@@ -80,9 +80,9 @@ trait ApiResponseTrait
      * @author King
      * @version 2019/5/30 0:11
      */
-    public function failed(...$args)
+    public function failure(...$args)
     {
-        $this->statusName = $this->successStatus;
+        $this->statusName = $this->errorStatus;
         $this->statusCode = Response::HTTP_BAD_REQUEST;
 
         collect($args)->each(function ($arg) {
@@ -99,12 +99,102 @@ trait ApiResponseTrait
     }
 
     /**
+     * @param array $data
      * @return \Illuminate\Http\JsonResponse
-     * @author King
-     * @version 2019/5/30 0:54
+     * @author: King
+     * @version: 2019/7/23 12:07
      */
-    public function created()
+    public function created(array $data = [])
     {
-        return $this->success(Response::HTTP_CREATED);
+        return $this->success($data, Response::HTTP_CREATED);
+    }
+
+    /**
+     * @return \Illuminate\Http\JsonResponse
+     * @author: King
+     * @version: 2019/7/23 12:18
+     */
+    public function failed()
+    {
+        return $this->failure();
+    }
+
+    /**
+     * @param string $message
+     * @return \Illuminate\Http\JsonResponse
+     * @author: King
+     * @version: 2019/7/23 12:13
+     */
+    public function failedWithMessage(string $message)
+    {
+        return $this->failure($message);
+    }
+
+    /**
+     * @param array $errors
+     * @return \Illuminate\Http\JsonResponse
+     * @author: King
+     * @version: 2019/7/23 12:26
+     */
+    public function failedWithErrors(array $errors)
+    {
+        return $this->failure($errors);
+    }
+
+    /**
+     * @param string $message
+     * @param array $errors
+     * @param int $code
+     * @return \Illuminate\Http\JsonResponse
+     * @author: King
+     * @version: 2019/7/23 12:28
+     */
+    public function failedWithMessageAndErrors(string $message, array $errors, int $code = Response::HTTP_BAD_REQUEST)
+    {
+        return $this->failure($message, $errors, $code);
+    }
+
+    /**
+     * @return \Illuminate\Http\JsonResponse
+     * @author: King
+     * @version: 2019/7/23 12:18
+     */
+    public function successful()
+    {
+        return $this->success();
+    }
+
+    /**
+     * @param array $data
+     * @return \Illuminate\Http\JsonResponse
+     * @author: King
+     * @version: 2019/7/23 12:10
+     */
+    public function successWithData(array $data)
+    {
+        return $this->success($data);
+    }
+
+    /**
+     * @param string $message
+     * @return \Illuminate\Http\JsonResponse
+     * @author: King
+     * @version: 2019/7/23 12:13
+     */
+    public function successWithMessage(string $message)
+    {
+        return $this->success($message);
+    }
+
+    /**
+     * @param string $message
+     * @param array $data
+     * @return \Illuminate\Http\JsonResponse
+     * @author: King
+     * @version: 2019/7/23 12:13
+     */
+    public function successWithMessageAndData(string $message, array $data)
+    {
+        return $this->success($message, $data);
     }
 }
