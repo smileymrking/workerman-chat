@@ -4,7 +4,9 @@ namespace App\Exceptions;
 
 use App\Traits\ApiResponseTrait;
 use Exception;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 
 class Handler extends ExceptionHandler
@@ -69,5 +71,36 @@ class Handler extends ExceptionHandler
             $this->convertExceptionToArray($e),
             $this->isHttpException($e) ? $e->getStatusCode() : Response::HTTP_INTERNAL_SERVER_ERROR
         );
+    }
+
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @param ValidationException $exception
+     * @return \Illuminate\Http\JsonResponse
+     * @author: King
+     * @version: 2019/7/25 12:20
+     */
+    protected function invalidJson($request, ValidationException $exception)
+    {
+        return $this->failedWithMessageAndErrors(
+            $exception->getMessage(),
+            $exception->errors(),
+            $exception->status ?: Response::HTTP_INTERNAL_SERVER_ERROR,
+            true
+        );
+    }
+
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @param AuthenticationException $exception
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|Response
+     * @author: King
+     * @version: 2019/7/25 12:23
+     */
+    protected function unauthenticated($request, AuthenticationException $exception)
+    {
+        return $request->expectsJson()
+            ? $this->failedWithMessage($exception->getMessage(), Response::HTTP_UNAUTHORIZED)
+            : redirect()->guest($exception->redirectTo() ?? route('login'));
     }
 }
